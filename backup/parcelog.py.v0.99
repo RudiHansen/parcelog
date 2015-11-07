@@ -1,0 +1,48 @@
+#!/usr/bin/python
+from ipwhois import IPWhois
+
+inputfile = open('/var/log/apache2/access.log.1')
+#outputfile = open('test.csv', 'w')
+
+# Function definition is here
+def getIp( line ):
+    pos1 = 0
+    pos2 = line.find("-") - 1
+    retStr = line[pos1:pos2]
+    return retStr
+    
+def getTimeStamp( line ):
+    pos1 = line.find("[") + 1
+    pos2 = line.find("]")
+    retStr = line[pos1:pos2]
+    return retStr
+
+def getFileName( line ):
+    pos1 = line.find("GET") + 4
+    pos2 = line.find("HTTP")
+    retStr = line[pos1:pos2]
+    return retStr
+
+def getWhoIs(ipadress):
+    obj = IPWhois(ipadress)
+    results = obj.lookup()
+    nets = results['nets']
+    nets = nets[0]
+    retStr = results['asn_country_code'] + ";" + nets['description']
+    return retStr
+    
+    
+         
+# Main code
+for line in inputfile:
+    #outputfile.writelines(data_parser(line, reps))
+    if line.find("GET") > 0:
+        ipadress 	= getIp(line)
+        timeStamp 	= getTimeStamp(line)
+	fileName	= getFileName(line)
+	if fileName.find("uploads") > 0:
+		whoIs = getWhoIs(ipadress)
+		print whoIs + ";" + ipadress + ";" + timeStamp + ";" + fileName
+
+inputfile.close()
+#outputfile.close()

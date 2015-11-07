@@ -1,0 +1,97 @@
+#!/usr/bin/python
+# coding=utf-8
+
+# Søger igennem alle logfiler fra /var/log/apache2 mappen og laver en liste
+# over hvilke filer fra /upload mappen er blevet downloaded.
+#
+# Data gemmes i følgende felter, og skrives til en csv fil.
+# Date	
+# Time	
+# Time zone	
+# Country	
+# WhoIS	
+# IP Address
+# File
+
+from ipwhois import IPWhois
+import gzip
+import glob
+
+filepath       = '/var/log/apache2/'
+filesearchpath = '/var/log/apache2/access*'
+
+outputfile = open('access.log.csv', 'w')
+
+# Function definition is here
+def getIp( line ):
+    pos1 = 0
+    pos2 = line.find("-") - 1
+    retStr = line[pos1:pos2]
+    return retStr
+    
+def getTimeStamp( line ):
+    pos1 = line.find("[") + 1
+    pos2 = line.find("]")
+    retStr = line[pos1:pos2]
+    return retStr
+
+def getFileName( line ):
+    pos1 = line.find("GET") + 4
+    pos2 = line.find("HTTP")
+    retStr = line[pos1:pos2]
+    return retStr
+
+def getWhoIs(ipadress):
+    obj = IPWhois(ipadress)
+    results = obj.lookup()
+    nets = results['nets']
+    if len(nets) > 0:
+        nets = nets[0]
+        retStr = results['asn_country_code'] + ";" + nets['description']
+    else:
+	retStr = ";"
+    return retStr
+
+def getFileList(filepath):
+    filelist = glob.glob(filepath)
+    filelist.sort()
+    return filelist
+
+def readFile(filename):
+    inputfile = open(filename)
+
+    for line in inputfile:
+        if line.find("GET") > 0:
+            ipadress 	= getIp(line)
+            timeStamp 	= getTimeStamp(line)
+            fileName	= getFileName(line)
+            if fileName.find("uploads") > 0:
+	        whoIs = getWhoIs(ipadress)
+	        outputfile.write(timeStamp + ";" + whoIs + ";" + ipadress +  ";" + fileName + "\n")
+
+    inputfile.close()
+
+def readFileGz(filename):
+    inputfile=gzip.open(filename,'rb')
+
+    for line in inputfile:
+        if line.find("GET") > 0:
+            ipadress 	= getIp(line)
+            timeStamp 	= getTimeStamp(line)
+            fileName	= getFileName(line)
+            if fileName.find("uploads") > 0:
+	        whoIs = getWhoIs(ipadress)
+	        outputfile.write(timeStamp + ";" + whoIs + ";" + ipadress + ";" + fileName + "\n")
+
+    inputfile.close()
+
+# Main code
+filenames = getFileList(filesearchpath)
+for filename in filenames:
+    print filename
+    if filename.find(".gz") > 0:
+	readFileGz(filename)
+    else:
+	readFile(filename)
+
+outputfile.close()
