@@ -81,24 +81,24 @@ def getFileName( line ):
     return retStr
 
 def getWhoIs(ipadress):
-    #return "BLA"
-    if dictSaveWhoIs.has_key(ipadress):
-	print "getWhoIs cache"
-	return dictSaveWhoIs[ipadress]
-    else:
-        obj = IPWhois(ipadress)
-	results = obj.lookup()
-        nets = results['nets']
+	#return "BLA"
+	if dictSaveWhoIs.has_key(ipadress):
+		print "getWhoIs cache"
+		return dictSaveWhoIs[ipadress]
+	else:
+		obj = IPWhois(ipadress)
+		results = obj.lookup()
+		nets = results['nets']
 	if len(nets) > 0:
-            nets = nets[0]
-	    retStr = results['asn_country_code'] + ";" + nets['description']
-	    retStr = retStr.replace('\n', '')
-        else:
-	    retStr = ";"
-	    
-    print "getWhoIs lookup"
-    dictSaveWhoIs[ipadress] = retStr
-    return retStr
+		nets = nets[0]
+		retStr = results['asn_country_code'] + ";" + nets['description']
+		retStr = retStr.replace('\n', '')
+	else:
+		retStr = ";"
+
+	print "getWhoIs lookup"
+	dictSaveWhoIs[ipadress] = retStr
+	return retStr
 
 def getFileList(filepath):
     filelist = glob.glob(filepath)
@@ -106,67 +106,67 @@ def getFileList(filepath):
     return filelist
 
 def readFile(filename):
-    inputfile = open(filename)
+	inputfile = open(filename)
 
-    for line in inputfile:
-        if line.find("GET") > 0:
-	    fileName = getFileName(line)
-	    if fileName.find("uploads") > 0:
-		dataLines.append(line)
+	for line in inputfile:
+		if line.find("GET") > 0:
+			fileName = getFileName(line)
+		if fileName.find("uploads") > 0:
+			dataLines.append(line)
 
-    inputfile.close()
-    return dataLines
+	inputfile.close()
+	return dataLines
 
 def readFileGz(filename):
-    inputfile=gzip.open(filename,'rb')
+	inputfile=gzip.open(filename,'rb')
 
-    for line in inputfile:
-        if line.find("GET") > 0:
-	    fileName = getFileName(line)
-	    if fileName.find("uploads") > 0:
-		dataLines.append(line)
-	    
-    inputfile.close()
-    return dataLines
+	for line in inputfile:
+		if line.find("GET") > 0:
+			fileName = getFileName(line)
+		if fileName.find("uploads") > 0:
+			dataLines.append(line)
+
+	inputfile.close()
+	return dataLines
 
 def dataLines2DataRecordLines(dataLines = []):
-    dataRecordLine = []
+	dataRecordLine = []
 
-    for line in dataLines:
-	ipadress 	= getIp(line)
-	if ipadress == "80.71.134.194":
-	    continue
-	date		= getDate(line)
-	time		= getTime(line)
-	timeZone	= getTimeZone(line)
-	fileName	= getFileName(line)
-	if fileName.find("uploads") > 0:
-	    dataRecord = []
-	    whoIs = getWhoIs(ipadress)
-	    dataRecord.append(date)
-	    dataRecord.append(time)
-	    dataRecord.append(timeZone)
-	    dataRecord.append(whoIs)
-	    dataRecord.append(ipadress)
-	    dataRecord.append(fileName)
-	    dataRecordLine.append(dataRecord)
-	    
-    return dataRecordLine
+	for line in dataLines:
+		ipadress 	= getIp(line)
+		if ipadress == "80.71.134.194":
+			continue
+		date		= getDate(line)
+		time		= getTime(line)
+		timeZone	= getTimeZone(line)
+		fileName	= getFileName(line)
+		if fileName.find("uploads") > 0:
+			dataRecord = []
+			whoIs = getWhoIs(ipadress)
+			dataRecord.append(date)
+			dataRecord.append(time)
+			dataRecord.append(timeZone)
+			dataRecord.append(whoIs)
+			dataRecord.append(ipadress)
+			dataRecord.append(fileName)
+			dataRecordLine.append(dataRecord)
+
+	return dataRecordLine
 
 def saveDataRecordLine(dataRecordLines = []):
-    global lastDate
-    global lastTime
-    cnt = 0
-    outputfile = open('access.log.record.csv', 'w')
+	global lastDate
+	global lastTime
+	cnt = 0
+	outputfile = open('access.log.record.csv', 'w')
 
-    for dataRecord in dataRecordLines:
-	outputfile.write(dataRecord[0] + ";" + dataRecord[1] + ";" + dataRecord[2] + ";" + dataRecord[3] + ";" + dataRecord[4] + ";" + dataRecord[5] + "\n")
-	lastDate = dataRecord[0]
-	lastTime = dataRecord[1]
-	cnt += 1
+	for dataRecord in dataRecordLines:
+		outputfile.write(dataRecord[0] + ";" + dataRecord[1] + ";" + dataRecord[2] + ";" + dataRecord[3] + ";" + dataRecord[4] + ";" + dataRecord[5] + "\n")
+		lastDate = dataRecord[0]
+		lastTime = dataRecord[1]
+		cnt += 1
 	
-    outputfile.close()
-    print("Found {0} lines.".format(cnt))
+	outputfile.close()
+	print("Found {0} lines.".format(cnt))
 
 def saveLastDateTime():
     global lastDate
@@ -182,20 +182,21 @@ def nprint(header,data):
 	print len(data)
 	print ">----" + header
 	raw_input("Press Enter to continue...")
-    
+
 
 # Main code
 filenames = getFileList(filesearchpath)
 dataLinesSum = []
 
 for filename in filenames:
-    print filename
-    dataLines = []
-    if filename.find(".gz") > 0:
-	dataLines = readFileGz(filename)
-    else:
-	dataLines = readFile(filename)
-    dataLinesSum += dataLines
+	print filename
+	dataLines = []
+	if filename.find(".gz") > 0:
+		dataLines = readFileGz(filename)
+	else:
+		dataLines = readFile(filename)
+	
+	dataLinesSum += dataLines
 
 print "dataLines2DataRecordLines"
 dataRecordLines = dataLines2DataRecordLines(dataLinesSum)

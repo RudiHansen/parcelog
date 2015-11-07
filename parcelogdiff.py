@@ -81,88 +81,87 @@ def getFileName( line ):
     return retStr
 
 def getWhoIs(ipadress):
-    if dictSaveWhoIs.has_key(ipadress):
-	print "getWhoIs cache"
-	return dictSaveWhoIs[ipadress]
-    else:
-        obj = IPWhois(ipadress)
-	results = obj.lookup()
-        nets = results['nets']
-	if len(nets) > 0:
-            nets = nets[0]
-	    retStr = results['asn_country_code'] + ";" + nets['description']
-	    retStr = retStr.replace('\n', '')
-        else:
-	    retStr = ";"
-	    
-    print "getWhoIs lookup"
-    dictSaveWhoIs[ipadress] = retStr
-    return retStr
+	if dictSaveWhoIs.has_key(ipadress):
+		print "getWhoIs cache"
+		return dictSaveWhoIs[ipadress]
+	else:
+		obj = IPWhois(ipadress)
+		results = obj.lookup()
+		nets = results['nets']
+		if len(nets) > 0:
+			nets = nets[0]
+			retStr = results['asn_country_code'] + ";" + nets['description']
+			retStr = retStr.replace('\n', '')
+		else:
+			retStr = ";"
+
+	print "getWhoIs lookup"
+	dictSaveWhoIs[ipadress] = retStr
+	return retStr
 
 def readFile(filename):
-    inputfile = open(filename)
+	inputfile = open(filename)
 
-    for line in inputfile:
-        if line.find("GET") > 0:
-	    fileName = getFileName(line)
-	    if fileName.find("uploads") > 0:
-		dataLines.append(line)
+	for line in inputfile:
+		if line.find("GET") > 0:
+			fileName = getFileName(line)
+		if fileName.find("uploads") > 0:
+			dataLines.append(line)
 
-    inputfile.close()
-    return dataLines
+	inputfile.close()
+	return dataLines
 
 def dataLines2DataRecordLines(dataLines = []):
-    dataRecordLine = []
+	dataRecordLine = []
 
-    for line in dataLines:
-	ipadress 	= getIp(line)
-	if ipadress == "80.71.134.194":
-	    continue
-	date		= getDate(line)
-	time		= getTime(line)
-	if date < lastDate:
-	    continue
-	if date == lastDate and time <= lastTime:
-	    continue
-	    
+	for line in dataLines:
+		ipadress 	= getIp(line)
+		if ipadress == "80.71.134.194":
+			continue
+		date		= getDate(line)
+		time		= getTime(line)
+		if date < lastDate:
+			continue
+		if date == lastDate and time <= lastTime:
+			continue
+
 	timeZone	= getTimeZone(line)
 	fileName	= getFileName(line)
 	if fileName.find("uploads") > 0:
-	    dataRecord = []
-	    whoIs = getWhoIs(ipadress)
-	    dataRecord.append(date)
-	    dataRecord.append(time)
-	    dataRecord.append(timeZone)
-	    dataRecord.append(whoIs)
-	    dataRecord.append(ipadress)
-	    dataRecord.append(fileName)
-	    dataRecordLine.append(dataRecord)
-	    
-	    
-    return dataRecordLine
+		dataRecord = []
+		whoIs = getWhoIs(ipadress)
+		dataRecord.append(date)
+		dataRecord.append(time)
+		dataRecord.append(timeZone)
+		dataRecord.append(whoIs)
+		dataRecord.append(ipadress)
+		dataRecord.append(fileName)
+		dataRecordLine.append(dataRecord)
+
+	return dataRecordLine
 
 def saveDataRecordLine(dataRecordLines = []):
-    global lastDate
-    global lastTime
-    cnt = 0
-    outputfile = open('access.log.record.csv', 'a')
+	global lastDate
+	global lastTime
+	cnt = 0
+	outputfile = open('access.log.record.csv', 'a')
 
-    for dataRecord in dataRecordLines:
-	outputfile.write(dataRecord[0] + ";" + dataRecord[1] + ";" + dataRecord[2] + ";" + dataRecord[3] + ";" + dataRecord[4] + ";" + dataRecord[5] + "\n")
-	lastDate = dataRecord[0]
-	lastTime = dataRecord[1]
-	cnt += 1
+	for dataRecord in dataRecordLines:
+		outputfile.write(dataRecord[0] + ";" + dataRecord[1] + ";" + dataRecord[2] + ";" + dataRecord[3] + ";" + dataRecord[4] + ";" + dataRecord[5] + "\n")
+		lastDate = dataRecord[0]
+		lastTime = dataRecord[1]
+		cnt += 1
 	
-    outputfile.close()
-    print("Found {0} lines.".format(cnt))
+	outputfile.close()
+	print("Found {0} lines.".format(cnt))
 
 def saveDataLine(dataLines = []):
-    outputfile = open('access.log.csv', 'w')
+	outputfile = open('access.log.csv', 'w')
 
-    for line in dataLines:
-	outputfile.write(line)
-	
-    outputfile.close()
+	for line in dataLines:
+		outputfile.write(line)
+
+	outputfile.close()
 
 def loadLastDateTime():
     global lastDate
@@ -188,7 +187,7 @@ def nprint(header,data):
 	print len(data)
 	print ">----" + header
 	raw_input("Press Enter to continue...")
-    
+
 
 # Main code
 loadLastDateTime()
