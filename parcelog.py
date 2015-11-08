@@ -17,7 +17,9 @@ from ipwhois import IPWhois
 import gzip
 import glob
 import pprint
+import time
 
+runlogfilename	 = '/home/rsh/python/parcelog/runlog.log'
 filepath         = '/var/log/apache2/'
 filesearchpath   = '/var/log/apache2/access*'
 filelastdatetime = 'lastdatetime.ini'
@@ -183,8 +185,12 @@ def nprint(header,data):
     print ">----" + header
     raw_input("Press Enter to continue...")
 
+def writelog(logmessage):
+    outputfile = open(runlogfilename,'a')
+    outputfile.write('{0} : {1}\n'.format(time.strftime("%d/%m/%Y %H:%M:%S"),logmessage))
 
 # Main code
+writelog("Start parcelog.py")
 filenames = getFileList(filesearchpath)
 dataLinesSum = []
 
@@ -206,3 +212,4 @@ print "saveDataRecordLine"
 saveDataRecordLine(dataRecordLines)
 saveLastDateTime()
 print lastDate + '-' + lastTime
+writelog("End   parcelog.py")

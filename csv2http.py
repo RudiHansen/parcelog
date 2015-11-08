@@ -10,9 +10,11 @@
 # WhoIS	
 # IP Address
 # File
+import time
 
+runlogfilename	= '/home/rsh/python/parcelog/runlog.log'
 filenamecsv	= 'access.log.record.csv'
-filenamehttp	= '/var/www/downloadfilelog.html'
+filenamehttp	= '/var/www/info/downloadfilelog.html'
 
 # Function definition is here
 def readFile(filenamecsv):
@@ -44,10 +46,16 @@ def writeFile(filenamehttp,dataLines):
     outputfile.write('</table>')
     outputfile.close()
 
+def writelog(logmessage):
+    outputfile = open(runlogfilename,'a')
+    outputfile.write('{0} : {1}\n'.format(time.strftime("%d/%m/%Y %H:%M:%S"),logmessage))
+
 def pause():
     raw_input("Press Enter to continue...")
 
 # Main code
+writelog("Start csv2http.py")
 dataLines = readFile(filenamecsv)
 dataLines.sort(reverse=True)
 writeFile(filenamehttp,dataLines)
+writelog("End   csv2http.py")

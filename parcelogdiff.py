@@ -18,10 +18,12 @@
 from ipwhois import IPWhois
 import glob
 import pprint
+import time
 
-logfilename   = '/var/log/apache2/access.log'
-logfilename2  = '/var/log/apache2/access.log.1'
-dictSaveWhoIs = {}
+runlogfilename	 = '/home/rsh/python/parcelog/runlog.log'
+logfilename	 = '/var/log/apache2/access.log'
+logfilename2	 = '/var/log/apache2/access.log.1'
+dictSaveWhoIs	 = {}
 filelastdatetime = 'lastdatetime.ini'
 lastDate         = ''
 lastTime         = ''
@@ -182,6 +184,10 @@ def saveLastDateTime():
     outputfile.write(lastTime+'\n')
     outputfile.close() 
 
+def writelog(logmessage):
+    outputfile = open(runlogfilename,'a')
+    outputfile.write('{0} : {1}\n'.format(time.strftime("%d/%m/%Y %H:%M:%S"),logmessage))
+
 def nprint(header,data):
     print ">----" + header
     pprint.pprint(data)
@@ -190,6 +196,7 @@ def nprint(header,data):
     raw_input("Press Enter to continue...")
 
 # Main code
+writelog("Start parcelogdiff.py")
 loadLastDateTime()
 print lastDate + '-' + lastTime
 
@@ -208,3 +215,5 @@ dataRecordLines.sort()
 saveDataRecordLine(dataRecordLines)
 saveLastDateTime()
 print lastDate + '-' + lastTime
+writelog("End   parcelogdiff.py")
+
