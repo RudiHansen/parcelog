@@ -22,7 +22,7 @@ import time
 runlogfilename	 = '/home/rsh/python/parcelog/runlog.log'
 filepath         = '/var/log/apache2/'
 filesearchpath   = '/var/log/apache2/access*'
-filelastdatetime = 'lastdatetime.ini'
+filelastdatetime = '/home/rsh/python/parcelog/lastdatetime.ini'
 dictSaveWhoIs    = {}
 lastDate         = ''
 lastTime         = ''

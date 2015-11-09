@@ -13,7 +13,7 @@
 import time
 
 runlogfilename	= '/home/rsh/python/parcelog/runlog.log'
-filenamecsv	= 'access.log.record.csv'
+filenamecsv	= '/home/rsh/python/parcelog/access.log.record.csv'
 filenamehttp	= '/var/www/info/downloadfilelog.html'
 
 # Function definition is here

@@ -24,7 +24,7 @@ runlogfilename	 = '/home/rsh/python/parcelog/runlog.log'
 logfilename	 = '/var/log/apache2/access.log'
 logfilename2	 = '/var/log/apache2/access.log.1'
 dictSaveWhoIs	 = {}
-filelastdatetime = 'lastdatetime.ini'
+filelastdatetime = '/home/rsh/python/parcelog/lastdatetime.ini'
 lastDate         = ''
 lastTime         = ''
 
