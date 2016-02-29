@@ -138,6 +138,8 @@ def dataLines2DataRecordLines(dataLines = []):
 	ipadress 	= getIp(line)
 	if ipadress == "80.71.134.194":
 	    continue
+	if ipadress == "80.197.109.214":
+	    continue
 	date		= getDate(line)
 	time		= getTime(line)
 	timeZone	= getTimeZone(line)
