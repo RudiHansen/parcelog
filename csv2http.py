@@ -32,6 +32,7 @@ def readFile(filenamecsv):
 def writeFile(filenamehttp,dataLines):
     outputfile = open(filenamehttp,'w')
     outputfile.write('<table border="1" style="border:1px black;width:100%;border-collapse:collapse;">\n')
+
     for fields in dataLines:
 	outputfile.write('<tr>\n')
 	outputfile.write('<td>{0}</td>\n'.format(fields[0]))

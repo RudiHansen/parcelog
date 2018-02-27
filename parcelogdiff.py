@@ -20,13 +20,14 @@ import glob
 import pprint
 import time
 
-runlogfilename	 = '/home/rsh/python/parcelog/runlog.log'
-logfilename	 = '/var/log/apache2/access.log'
-logfilename2	 = '/var/log/apache2/access.log.1'
-dictSaveWhoIs	 = {}
-filelastdatetime = '/home/rsh/python/parcelog/lastdatetime.ini'
-lastDate         = ''
-lastTime         = ''
+runlogfilename	   = '/home/rsh/python/parcelog/runlog.log'
+logfilename	   = '/var/log/apache2/access.log'
+logfilename2	   = '/var/log/apache2/access.log.1'
+dictSaveWhoIs	   = {}
+filelastdatetime   = '/home/rsh/python/parcelog/lastdatetime.ini'
+lastDate           = ''
+lastTime           = ''
+fileDataRecordLine = '/home/rsh/python/parcelog/access.log.record.csv'
 
 # Function definition is here
 def getIp( line ):
@@ -84,24 +85,30 @@ def getFileName( line ):
     return retStr
 
 def getWhoIs(ipadress):
+    if ipadress == "192.168.1.1":
+	return ""
     if dictSaveWhoIs.has_key(ipadress):
 	print "getWhoIs cache"
 	return dictSaveWhoIs[ipadress]
     else:
-	obj = IPWhois(ipadress)
-	results = obj.lookup()
-	nets = results['nets']
+        obj = IPWhois(ipadress)
+        results = obj.lookup()
+        nets = results['nets']
 	if len(nets) > 0:
 	    nets = nets[0]
-	    retStr = results['asn_country_code'] + ";" + nets['description']
+	    countrycode = results['asn_country_code']
+	    description = nets['description']
+	    if description is None:
+		description = ""
+	    retStr = countrycode + ";" + description
 	    retStr = retStr.replace('\n', '')
 	else:
 	    retStr = ";"
-
+        
     print "getWhoIs lookup"
     dictSaveWhoIs[ipadress] = retStr
     return retStr
-
+                
 def readFile(filename):
     inputfile = open(filename)
 
@@ -122,6 +129,10 @@ def dataLines2DataRecordLines(dataLines = []):
 	if ipadress == "80.71.134.194":
 	    continue
 	if ipadress == "80.197.109.214":
+	    continue
+	if ipadress == "192.168.1.1":
+	    continue
+	if ipadress == "194.88.235.17":
 	    continue
 	date		= getDate(line)
 	time		= getTime(line)
@@ -149,7 +160,7 @@ def saveDataRecordLine(dataRecordLines = []):
     global lastDate
     global lastTime
     cnt = 0
-    outputfile = open('access.log.record.csv', 'a')
+    outputfile = open(fileDataRecordLine, 'a')
 
     for dataRecord in dataRecordLines:
 	outputfile.write(dataRecord[0] + ";" + dataRecord[1] + ";" + dataRecord[2] + ";" + dataRecord[3] + ";" + dataRecord[4] + ";" + dataRecord[5] + "\n")

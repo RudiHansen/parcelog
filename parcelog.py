@@ -16,16 +16,17 @@
 from ipwhois import IPWhois
 import gzip
 import glob
-import pprint
+from pprint import pprint
 import time
 
-runlogfilename	 = '/home/rsh/python/parcelog/runlog.log'
-filepath         = '/var/log/apache2/'
-filesearchpath   = '/var/log/apache2/access*'
-filelastdatetime = '/home/rsh/python/parcelog/lastdatetime.ini'
-dictSaveWhoIs    = {}
-lastDate         = ''
-lastTime         = ''
+runlogfilename     = '/home/rsh/python/parcelog/runlog.log'
+filepath           = '/var/log/apache2/'
+filesearchpath     = '/var/log/apache2/access*'
+filelastdatetime   = '/home/rsh/python/parcelog/lastdatetime.ini'
+dictSaveWhoIs      = {}
+lastDate           = ''
+lastTime           = ''
+fileDataRecordLine = '/home/rsh/python/parcelog/access.log.record.csv'
 
 # Function definition is here
 def getIp( line ):
@@ -83,7 +84,8 @@ def getFileName( line ):
     return retStr
 
 def getWhoIs(ipadress):
-    #return "BLA"
+    if ipadress == "192.168.1.1":
+	return ";"
     if dictSaveWhoIs.has_key(ipadress):
 	print "getWhoIs cache"
 	return dictSaveWhoIs[ipadress]
@@ -93,7 +95,11 @@ def getWhoIs(ipadress):
 	nets = results['nets']
 	if len(nets) > 0:
 	    nets = nets[0]
-	    retStr = results['asn_country_code'] + ";" + nets['description']
+	    countrycode = results['asn_country_code']
+	    description = nets['description']
+	    if description is None:
+		description = ""
+	    retStr = countrycode + ";" + description
 	    retStr = retStr.replace('\n', '')
 	else:
 	    retStr = ";"
@@ -140,6 +146,10 @@ def dataLines2DataRecordLines(dataLines = []):
 	    continue
 	if ipadress == "80.197.109.214":
 	    continue
+	if ipadress == "192.168.1.1":
+	    continue
+	if ipadress == "194.88.235.17":
+	    continue
 	date		= getDate(line)
 	time		= getTime(line)
 	timeZone	= getTimeZone(line)
@@ -161,7 +171,7 @@ def saveDataRecordLine(dataRecordLines = []):
     global lastDate
     global lastTime
     cnt = 0
-    outputfile = open('access.log.record.csv', 'w')
+    outputfile = open(fileDataRecordLine, 'w')
 
     for dataRecord in dataRecordLines:
 	outputfile.write(dataRecord[0] + ";" + dataRecord[1] + ";" + dataRecord[2] + ";" + dataRecord[3] + ";" + dataRecord[4] + ";" + dataRecord[5] + "\n")
